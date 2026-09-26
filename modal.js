@@ -1,8 +1,3 @@
-/* ===================================================================
-   modal.js — modais: registrar/editar lançamento, orçamento, metas,
-   fechamento de mês e detalhe do histórico
-   =================================================================== */
-
 function abrirModal(innerHTML, { largo = false } = {}) {
   const fundo = document.createElement("div");
   fundo.className = "modal-fundo";
@@ -28,7 +23,7 @@ function fecharModal(fundo) {
   fundo.remove();
 }
 
-/* ---------- Registrar / editar lançamento ---------- */
+/* ---------- Registrar ---------- */
 
 function abrirModalRegistro(tipoInicial = null, transacaoEditando = null) {
   const editando = !!transacaoEditando;
