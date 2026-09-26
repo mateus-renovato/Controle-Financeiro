@@ -1,8 +1,3 @@
-/* ===================================================================
-   dados.js — estado, armazenamento e regras de negócio (V2)
-   Tudo fica salvo no localStorage do navegador, no aparelho da pessoa.
-   =================================================================== */
-
 const CHAVE_V1 = "controleFinanceiro_v1";
 const CHAVE_V2 = "controleFinanceiro_v2";
 
@@ -26,7 +21,7 @@ const MESES_PT = [
   "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
 ];
 
-/* ---------- Estado padrão / migração ---------- */
+/* ---------- Estado padrão  ---------- */
 
 function estadoPadrao() {
   return {
@@ -72,7 +67,6 @@ function carregarEstado() {
         investConfig: { ...base.investConfig, ...(dados.investConfig || {}) },
       };
     }
-    // sem dados v2: tenta migrar da v1, sem apagar nada da v1
     const migrado = migrarDadosV1ParaV2();
     if (migrado) {
       localStorage.setItem(CHAVE_V2, JSON.stringify(migrado));
