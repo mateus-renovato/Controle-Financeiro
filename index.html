@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caderno — Controle Financeiro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style1.css">
+</head>
+<body>
+
+<div class="capa" id="capa">
+  <div class="capa-conteudo">
+    <span class="capa-selo">caderno nº 01</span>
+    <h1 class="capa-titulo">Controle<br>Financeiro</h1>
+    <p class="capa-sub">Seu dinheiro. Organizado todos os dias.</p>
+    <button class="capa-abrir" id="btnAbrirCaderno">Abrir aplicativo →</button>
+  </div>
+</div>
+
+<div class="app" id="app" hidden>
+
+  <header class="topo">
+    <div class="topo-id">
+      <span class="topo-selo">caderno nº 01</span>
+      <h1>Controle Financeiro</h1>
+    </div>
+    <div class="topo-acoes">
+      <span class="topo-data" id="dataAtualHeader"></span>
+      <button class="topo-btn" id="btnDados" title="Exportar, importar ou limpar dados" aria-label="Seus dados">⚙</button>
+    </div>
+  </header>
+
+  <nav class="abas" id="abas">
+    <button class="aba" data-aba="inicio" aria-current="page">
+      <span class="aba-icone">⌂</span><span class="aba-rotulo">Início</span>
+    </button>
+    <button class="aba" data-aba="movimentacoes">
+      <span class="aba-icone">↕</span><span class="aba-rotulo">Movimentações</span>
+    </button>
+    <button class="aba" data-aba="planejamento">
+      <span class="aba-icone">▤</span><span class="aba-rotulo">Planejamento</span>
+    </button>
+    <button class="aba" data-aba="investimentos">
+      <span class="aba-icone">↑</span><span class="aba-rotulo">Investimentos</span>
+    </button>
+    <button class="aba" data-aba="historico">
+      <span class="aba-icone">◷</span><span class="aba-rotulo">Histórico</span>
+    </button>
+  </nav>
+
+  <main class="paginas">
+
+    <!-- INÍCIO -->
+    <section class="pagina" id="pg-inicio">
+      <div class="saudacao">
+        <h2>Olá 👋</h2>
+        <p>Veja como está sua vida financeira em <span id="inicioMesCorrente">—</span>.</p>
+      </div>
+
+      <div class="cartao-saldo-principal" id="saldoPrincipalCartao">
+        <span class="cr-rotulo">Saldo disponível</span>
+        <span class="saldo-principal-valor" id="saldoPrincipalValor">R$ 0,00</span>
+      </div>
+
+      <div class="cartoes-resumo">
+        <div class="cartao-resumo" data-tipo="receita">
+          <span class="cr-rotulo">Entradas</span>
+          <span class="cr-valor" id="resReceitas">R$ 0,00</span>
+        </div>
+        <div class="cartao-resumo" data-tipo="gasto">
+          <span class="cr-rotulo">Gastos</span>
+          <span class="cr-valor" id="resGastos">R$ 0,00</span>
+        </div>
+        <div class="cartao-resumo" data-tipo="investimento">
+          <span class="cr-rotulo">Investido</span>
+          <span class="cr-valor" id="resInvestido">R$ 0,00</span>
+        </div>
+      </div>
+
+      <div class="bloco bloco-indicador">
+        <h3>Seu mês</h3>
+        <p class="indicador-texto" id="indicadorTexto">—</p>
+        <div id="indicadorBarra"></div>
+        <div class="indicador-rodape">
+          <span id="indicadorInvestido">0% investido</span>
+          <span id="indicadorRestante">Restam R$ 0,00</span>
+        </div>
+      </div>
+
+      <div class="bloco">
+        <h3>Avisos</h3>
+        <ul class="lista-alertas" id="listaAlertas"></ul>
+      </div>
+
+      <div class="painel-grade">
+        <div class="bloco">
+          <h3>Para onde está indo o dinheiro</h3>
+          <div class="grafico-categorias" id="graficoCategorias"></div>
+        </div>
+
+        <div class="bloco">
+          <div class="bloco-cabecalho">
+            <h3>Próximas contas</h3>
+            <span class="total-dia" id="totalPrevistoContas">—</span>
+          </div>
+          <ul class="lista-lancamentos" id="proximasContas"></ul>
+        </div>
+      </div>
+
+      <div class="bloco">
+        <h3>Últimos lançamentos</h3>
+        <ul class="lista-lancamentos" id="ultimosLancamentos"></ul>
+      </div>
+    </section>
+
+    <!-- MOVIMENTAÇÕES -->
+    <section class="pagina" id="pg-movimentacoes" hidden>
+      <div class="pagina-cabecalho">
+        <h2>Movimentações</h2>
+        <select id="filtroMes" class="seletor-mes" aria-label="Selecionar mês"></select>
+      </div>
+
+      <div class="barra-busca">
+        <input type="search" id="buscaLancamento" placeholder="🔎 Digite para buscar...">
+      </div>
+
+      <div class="chips" id="filtrosTipo">
+        <button class="chip ativo" data-filtro="todos">Todos</button>
+        <button class="chip" data-filtro="gasto">Gastos</button>
+        <button class="chip" data-filtro="receita">Entradas</button>
+        <button class="chip" data-filtro="investimento">Investimentos</button>
+      </div>
+
+      <div id="extratoLista"></div>
+    </section>
+
+    <!-- PLANEJAMENTO -->
+    <section class="pagina" id="pg-planejamento" hidden>
+      <div class="pagina-cabecalho">
+        <h2>Planejamento</h2>
+      </div>
+
+      <div class="bloco">
+        <div class="bloco-cabecalho">
+          <h3>Contas fixas e assinaturas</h3>
+          <span class="total-dia" id="fixosTotalMes">—</span>
+        </div>
+        <p class="explicacao">
+          Assinaturas, fatura do cartão e contas que se repetem todo mês viram automaticamente
+          um lançamento de gasto no dia do vencimento — sem precisar lançar na mão.
+        </p>
+
+        <form class="form-lancamento" id="formFixo">
+          <div class="campo-linha">
+            <div class="campo-grupo">
+              <label for="fNome">Nome</label>
+              <input type="text" id="fNome" placeholder="ex: Netflix, cartão Nubank, aluguel" required>
+            </div>
+            <div class="campo-grupo">
+              <label for="fTipoFixo">Tipo</label>
+              <select id="fTipoFixo">
+                <option value="assinatura">Assinatura</option>
+                <option value="cartao">Cartão de crédito</option>
+                <option value="conta">Conta fixa</option>
+              </select>
+            </div>
+          </div>
+          <div class="campo-linha">
+            <div class="campo-grupo">
+              <label for="fValor">Valor (R$)</label>
+              <input type="number" id="fValor" inputmode="decimal" step="0.01" min="0" placeholder="0,00" required>
+            </div>
+            <div class="campo-grupo">
+              <label for="fDia">Dia do vencimento</label>
+              <input type="number" id="fDia" min="1" max="28" placeholder="ex: 10" required>
+            </div>
+            <div class="campo-grupo">
+              <label for="fCategoriaFixo">Categoria</label>
+              <select id="fCategoriaFixo"></select>
+            </div>
+          </div>
+          <button type="submit" class="btn-primario">Adicionar conta fixa</button>
+        </form>
+
+        <ul class="lista-fixos" id="listaFixos"></ul>
+      </div>
+
+      <div class="bloco">
+        <div class="bloco-cabecalho">
+          <h3>Orçamento por categoria</h3>
+          <button class="btn-secundario" id="btnNovoOrcamento">+ Novo orçamento</button>
+        </div>
+        <ul class="lista-orcamentos" id="listaOrcamentos"></ul>
+      </div>
+
+      <div class="bloco">
+        <div class="bloco-cabecalho">
+          <h3>Metas financeiras</h3>
+          <button class="btn-secundario" id="btnNovaMeta">+ Nova meta</button>
+        </div>
+        <ul class="lista-orcamentos" id="listaMetas"></ul>
+      </div>
+    </section>
+
+    <!-- INVESTIMENTOS -->
+    <section class="pagina" id="pg-investimentos" hidden>
+      <div class="pagina-cabecalho">
+        <h2>Investimentos</h2>
+      </div>
+
+      <div class="cartoes-resumo cartoes-invest">
+        <div class="cartao-resumo" data-tipo="investimento">
+          <span class="cr-rotulo">Patrimônio investido</span>
+          <span class="cr-valor" id="patrimonioValor">R$ 0,00</span>
+        </div>
+        <div class="cartao-resumo" data-tipo="investimento">
+          <span class="cr-rotulo">Aportes este mês</span>
+          <span class="cr-valor" id="aportesMesValor">R$ 0,00</span>
+        </div>
+      </div>
+
+      <div class="bloco">
+        <h3>Meta de patrimônio</h3>
+        <p class="indicador-texto" id="metaPatrimonioTexto">—</p>
+        <div id="metaPatrimonioBarra"></div>
+        <form class="form-lancamento form-inline" id="formInvestConfig">
+          <div class="campo-linha">
+            <div class="campo-grupo"><label for="iPatrimonio">Patrimônio atual (R$)</label><input type="number" id="iPatrimonio" step="0.01" min="0" placeholder="0,00"></div>
+            <div class="campo-grupo"><label for="iMetaPatrimonio">Meta de patrimônio (R$)</label><input type="number" id="iMetaPatrimonio" step="0.01" min="0" placeholder="0,00"></div>
+          </div>
+          <p class="explicacao">Informe você mesmo o valor do seu patrimônio — o app não busca cotação nem rentabilidade automaticamente.</p>
+          <button type="submit" class="btn-primario">Salvar</button>
+        </form>
+      </div>
+
+      <div class="bloco">
+        <div class="bloco-cabecalho">
+          <h3>Distribuição da carteira</h3>
+        </div>
+        <form class="form-lancamento form-inline" id="formDistribuicao">
+          <div class="campo-linha">
+            <div class="campo-grupo"><label for="dNome">Categoria</label><input type="text" id="dNome" placeholder="ex: Tesouro, Ações, FIIs" required></div>
+            <div class="campo-grupo"><label for="dPercentual">Percentual (%)</label><input type="number" id="dPercentual" min="1" max="100" required></div>
+          </div>
+          <button type="submit" class="btn-primario">Adicionar</button>
+        </form>
+        <ul class="lista-lancamentos" id="listaDistribuicao"></ul>
+      </div>
+
+      <div class="bloco">
+        <h3>Registrar aporte</h3>
+        <form class="form-lancamento" id="formInvest">
+          <div class="campo-linha">
+            <div class="campo-grupo">
+              <label for="iDescricao">Onde / o quê</label>
+              <input type="text" id="iDescricao" placeholder="ex: Tesouro Selic, ações, reserva" required>
+            </div>
+            <div class="campo-grupo">
+              <label for="iValor">Valor (R$)</label>
+              <input type="number" id="iValor" inputmode="decimal" step="0.01" min="0" placeholder="0,00" required>
+            </div>
+          </div>
+          <div class="campo-grupo">
+            <label for="iData">Data</label>
+            <input type="date" id="iData" required>
+          </div>
+          <button type="submit" class="btn-primario">Registrar aporte</button>
+        </form>
+      </div>
+
+      <div class="bloco">
+        <h3>Aportes deste mês</h3>
+        <ul class="lista-lancamentos" id="listaInvestMes"></ul>
+      </div>
+
+      <div class="bloco">
+        <h3>Evolução dos investimentos</h3>
+        <div id="graficoEvolucaoInvest"></div>
+      </div>
+    </section>
+
+    <!-- HISTORICO -->
+    <section class="pagina" id="pg-historico" hidden>
+      <div class="pagina-cabecalho">
+        <h2>Histórico de meses</h2>
+        <button class="btn-primario btn-fechar" id="btnFecharMes">Fechar mês</button>
+      </div>
+
+      <div class="grade-historico" id="gradeHistorico"></div>
+
+      <div class="bloco">
+        <h3>Comparação com o mês anterior</h3>
+        <div class="comparacao" id="comparacaoMeses"></div>
+      </div>
+
+      <div class="painel-grade">
+        <div class="bloco">
+          <h3>Evolução dos gastos</h3>
+          <div id="graficoEvolucaoGastos"></div>
+        </div>
+        <div class="bloco">
+          <h3>Evolução do saldo</h3>
+          <div id="graficoEvolucaoSaldo"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <button class="fab" id="btnRegistrar" aria-label="Registrar lançamento">
+    <span class="fab-mais">+</span><span class="fab-texto">Registrar</span>
+  </button>
+
+</div>
+
+<script src="dados.js"></script>
+<script src="graficos.js"></script>
+<script src="render.js"></script>
+<script src="modal.js"></script>
+<script src="acoes.js"></script>
+</body>
+</html>
