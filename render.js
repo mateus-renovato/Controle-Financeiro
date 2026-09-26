@@ -1,10 +1,6 @@
-/* ===================================================================
-   render.js — desenha as telas a partir do estado atual (V2)
-   =================================================================== */
-
 let filtroMovTipo = "todos";
 let filtroMovBusca = "";
-let filtroMovMes = null; // null = mês atual
+let filtroMovMes = null; // mês atual
 
 function preencherSelectCategorias(select, extra = []) {
   const opcoes = [...CATEGORIAS, ...extra];
@@ -35,7 +31,7 @@ function listaOuVazio(itens, htmlVazio) {
 }
 
 /* ==================================================================
-   INÍCIO — Dashboard
+  Dashboard
    ================================================================== */
 
 function renderInicio() {
@@ -165,7 +161,7 @@ function renderMovimentacoes() {
 }
 
 /* ==================================================================
-   PLANEJAMENTO — contas fixas + orçamento
+   PLANEJAMENTO 
    ================================================================== */
 
 function rotuloTipoFixo(tipo) {
@@ -462,7 +458,6 @@ function htmlDetalheHistorico(registro) {
     </div>`;
 }
 
-/* ---------- Orquestração geral ---------- */
 
 function renderTudo() {
   renderInicio();
