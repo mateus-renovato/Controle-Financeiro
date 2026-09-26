@@ -1,6 +1,3 @@
-# Controle-Financeiro
-Controle Financeiro — Aplicação web para controle financeiro pessoal, permitindo registrar movimentações, acompanhar contas fixas, organizar orçamentos, definir metas e gerenciar investimentos.
-
 # 📊 Controle-Financeiro
 
 Um aplicativo web de **controle financeiro pessoal** desenvolvido para facilitar o acompanhamento das finanças do dia a dia de forma simples, organizada e visual.
