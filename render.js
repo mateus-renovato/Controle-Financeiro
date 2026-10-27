@@ -1,6 +1,10 @@
+/* ===================================================================
+   render.js — desenha as telas a partir do estado atual (V2)
+   =================================================================== */
+
 let filtroMovTipo = "todos";
 let filtroMovBusca = "";
-let filtroMovMes = null; // mês atual
+let filtroMovMes = null; // null = mês atual
 
 function preencherSelectCategorias(select, extra = []) {
   const opcoes = [...CATEGORIAS, ...extra];
@@ -31,7 +35,7 @@ function listaOuVazio(itens, htmlVazio) {
 }
 
 /* ==================================================================
-  Dashboard
+   INÍCIO — Dashboard
    ================================================================== */
 
 function renderInicio() {
@@ -161,7 +165,7 @@ function renderMovimentacoes() {
 }
 
 /* ==================================================================
-   PLANEJAMENTO 
+   PLANEJAMENTO — contas fixas + orçamento
    ================================================================== */
 
 function rotuloTipoFixo(tipo) {
@@ -201,8 +205,8 @@ function renderOrcamentos() {
   const mesAno = mesAnoAtual();
   const itens = orcamentoComProgresso(mesAno).map((o) => {
     let statusHTML = "";
-    if (o.pct >= 100) statusHTML = `<span class="orc-status estourou">🔴 Orçamento excedido</span>`;
-    else if (o.pct >= 85) statusHTML = `<span class="orc-status atencao">⚠ Próximo do limite</span>`;
+    if (o.pct >= LIMITES_ORCAMENTO.ESTOURADO) statusHTML = `<span class="orc-status estourou">🔴 Orçamento excedido</span>`;
+    else if (o.pct >= LIMITES_ORCAMENTO.ATENCAO) statusHTML = `<span class="orc-status atencao">⚠ Próximo do limite</span>`;
 
     return `
       <li class="orc-item" data-id="${o.id}">
@@ -458,6 +462,7 @@ function htmlDetalheHistorico(registro) {
     </div>`;
 }
 
+/* ---------- Orquestração geral ---------- */
 
 function renderTudo() {
   renderInicio();

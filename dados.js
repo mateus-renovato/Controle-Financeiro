@@ -1,159 +1,19 @@
-const CHAVE_V1 = "controleFinanceiro_v1";
-const CHAVE_V2 = "controleFinanceiro_v2";
+/* ===================================================================
+   dados.js — regras de negócio financeiras (V3)
+   Datas, dinheiro e formatação agora moram em utils.js.
+   Persistência (localStorage) mora em storage.js.
+   Formato padrão e migração de versões moram em migration.js.
+   Leitura/escrita do `estado` global passa por state.js.
+   Tudo continua salvo apenas no aparelho da pessoa.
+   =================================================================== */
 
-const CATEGORIAS = [
-  "Alimentação",
-  "Transporte",
-  "Moradia",
-  "Lazer",
-  "Saúde",
-  "Educação",
-  "Compras",
-  "Assinaturas",
-  "Cartão de crédito",
-  "Outros",
-];
-
-const ORIGENS_RECEITA = ["Salário", "Freelance", "Venda", "Outros"];
-
-const MESES_PT = [
-  "janeiro", "fevereiro", "março", "abril", "maio", "junho",
-  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
-];
-
-/* ---------- Estado padrão  ---------- */
-
-function estadoPadrao() {
-  return {
-    versao: 2,
-    transacoes: [],   // {id, tipo:'gasto'|'receita'|'investimento', categoria, descricao, valor, data, observacao, origemFixoId}
-    fixos: [],        // {id, nome, tipo, categoria, valor, diaVencimento, ativo, ultimoLancamento}
-    orcamentos: [],   // {id, categoria, valor, repetir:boolean, mesAno?}
-    metas: [],        // {id, nome, valorObjetivo, valorAtual, prazo}
-    investConfig: {
-      patrimonio: 0,
-      metaPatrimonio: 0,
-      distribuicao: [], // {id, nome, percentual}
-    },
-    historico: [],    // {id, mesAno, totalReceitas, totalGastos, totalInvestido, saldo, categorias, fechadoEm}
-  };
-}
-
-function migrarDadosV1ParaV2() {
-  try {
-    const bruto = localStorage.getItem(CHAVE_V1);
-    if (!bruto) return null;
-    const antigo = JSON.parse(bruto);
-    const novo = estadoPadrao();
-    novo.transacoes = antigo.transacoes || [];
-    novo.fixos = antigo.fixos || [];
-    novo.historico = (antigo.historico || []).map((h) => ({ ...h }));
-    return novo;
-  } catch (erro) {
-    console.error("Não foi possível migrar dados da versão 1:", erro);
-    return null;
-  }
-}
-
-function carregarEstado() {
-  try {
-    const brutoV2 = localStorage.getItem(CHAVE_V2);
-    if (brutoV2) {
-      const dados = JSON.parse(brutoV2);
-      const base = estadoPadrao();
-      return {
-        ...base,
-        ...dados,
-        investConfig: { ...base.investConfig, ...(dados.investConfig || {}) },
-      };
-    }
-    const migrado = migrarDadosV1ParaV2();
-    if (migrado) {
-      localStorage.setItem(CHAVE_V2, JSON.stringify(migrado));
-      return migrado;
-    }
-    return estadoPadrao();
-  } catch (erro) {
-    console.error("Não foi possível ler os dados salvos:", erro);
-    return estadoPadrao();
-  }
-}
+let estado = state.init(migration.carregarEstado());
 
 function salvarEstado() {
-  try {
-    localStorage.setItem(CHAVE_V2, JSON.stringify(estado));
-  } catch (erro) {
-    console.error("Não foi possível salvar os dados:", erro);
-    alert("Não consegui salvar os dados agora. Veja se o navegador não está em modo privado/anônimo.");
-  }
-}
-
-let estado = carregarEstado();
-
-/* ---------- Utilidades ---------- */
-
-function gerarId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
-
-function hojeISO() {
-  const d = new Date();
-  const ano = d.getFullYear();
-  const mes = String(d.getMonth() + 1).padStart(2, "0");
-  const dia = String(d.getDate()).padStart(2, "0");
-  return `${ano}-${mes}-${dia}`;
-}
-
-function mesAnoDe(dataISO) {
-  return dataISO.slice(0, 7);
-}
-
-function mesAnoAtual() {
-  return mesAnoDe(hojeISO());
-}
-
-function nomeMesExtenso(mesAno) {
-  const [ano, mes] = mesAno.split("-").map(Number);
-  return `${MESES_PT[mes - 1]} de ${ano}`;
-}
-
-function nomeMesCurto(mesAno) {
-  const [, mes] = mesAno.split("-").map(Number);
-  return MESES_PT[mes - 1].slice(0, 3);
-}
-
-function formatarMoeda(valor) {
-  const numero = Number(valor) || 0;
-  return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-function formatarDataCurta(dataISO) {
-  const [, mes, dia] = dataISO.split("-");
-  return `${dia}/${mes}`;
-}
-
-function formatarDataCompleta(dataISO) {
-  const d = new Date(dataISO + "T00:00:00");
-  const diasSemana = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
-  return `${diasSemana[d.getDay()]}, ${d.getDate()} de ${MESES_PT[d.getMonth()]}`;
-}
-
-function diasEntre(dataISOAlvo, dataISOBase = hojeISO()) {
-  const a = new Date(dataISOAlvo + "T00:00:00");
-  const b = new Date(dataISOBase + "T00:00:00");
-  return Math.round((a - b) / 86400000);
-}
-
-function mesAnterior(mesAno) {
-  const [ano, mes] = mesAno.split("-").map(Number);
-  const d = new Date(ano, mes - 2, 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function escaparHTML(texto) {
-  const div = document.createElement("div");
-  div.textContent = texto ?? "";
-  return div.innerHTML;
+  // Ressincroniza a referência (cobre tanto mutação em lugar,
+  // como estado.fixos.push(...), quanto troca completa do objeto,
+  // como em limparTodosOsDados/importarDadosJSON) e persiste.
+  state.set(estado);
 }
 
 /* ---------- Consultas sobre transações ---------- */
@@ -167,9 +27,10 @@ function transacoesDoDia(dataISO = hojeISO()) {
 }
 
 function somarPorTipo(transacoes, tipo) {
-  return transacoes
+  const centavos = transacoes
     .filter((t) => t.tipo === tipo)
-    .reduce((soma, t) => soma + Number(t.valor), 0);
+    .reduce((soma, t) => soma + reaisParaCentavos(t.valor), 0);
+  return centavosParaReais(centavos);
 }
 
 function resumoDoMes(mesAno = mesAnoAtual()) {
@@ -177,16 +38,19 @@ function resumoDoMes(mesAno = mesAnoAtual()) {
   const totalReceitas = somarPorTipo(docs, "receita");
   const totalGastos = somarPorTipo(docs, "gasto");
   const totalInvestido = somarPorTipo(docs, "investimento");
-  const saldo = totalReceitas - totalGastos - totalInvestido;
+  const saldo = subtrairDinheiro(subtrairDinheiro(totalReceitas, totalGastos), totalInvestido);
   return { totalReceitas, totalGastos, totalInvestido, saldo, docs };
 }
 
 function gastosPorCategoria(mesAno = mesAnoAtual()) {
   const docs = transacoesDoMes(mesAno).filter((t) => t.tipo === "gasto");
-  const mapa = {};
+  const mapaCentavos = {};
   for (const t of docs) {
-    mapa[t.categoria] = (mapa[t.categoria] || 0) + Number(t.valor);
+    mapaCentavos[t.categoria] = (mapaCentavos[t.categoria] || 0) + reaisParaCentavos(t.valor);
   }
+  const mapa = Object.fromEntries(
+    Object.entries(mapaCentavos).map(([cat, centavos]) => [cat, centavosParaReais(centavos)])
+  );
   return Object.entries(mapa).sort((a, b) => b[1] - a[1]);
 }
 
@@ -231,9 +95,10 @@ function lancarFixosPendentes(mesAno = mesAnoAtual()) {
 }
 
 function totalFixosAtivos() {
-  return estado.fixos
+  const centavos = estado.fixos
     .filter((f) => f.ativo)
-    .reduce((soma, f) => soma + Number(f.valor), 0);
+    .reduce((soma, f) => soma + reaisParaCentavos(f.valor), 0);
+  return centavosParaReais(centavos);
 }
 
 function proximasContas(limite = 5) {
@@ -275,7 +140,7 @@ function orcamentoComProgresso(mesAno = mesAnoAtual()) {
   return orcamentosDoMes(mesAno).map((o) => {
     const gasto = gastos[o.categoria] || 0;
     const pct = o.valor > 0 ? Math.min(999, Math.round((gasto / o.valor) * 100)) : 0;
-    return { ...o, gasto, pct, restante: o.valor - gasto };
+    return { ...o, gasto, pct, restante: subtrairDinheiro(o.valor, gasto) };
   });
 }
 
@@ -374,9 +239,9 @@ function gerarAlertas(mesAno = mesAnoAtual()) {
   const { totalReceitas, totalGastos, totalInvestido } = resumoDoMes(mesAno);
 
   for (const o of orcamentoComProgresso(mesAno)) {
-    if (o.pct >= 100) {
+    if (o.pct >= LIMITES_ORCAMENTO.ESTOURADO) {
       alertas.push({ tipo: "erro", texto: `Orçamento de ${o.categoria} excedido: ${formatarMoeda(o.gasto)} de ${formatarMoeda(o.valor)}.` });
-    } else if (o.pct >= 85) {
+    } else if (o.pct >= LIMITES_ORCAMENTO.ATENCAO) {
       alertas.push({ tipo: "atencao", texto: `Você já utilizou ${o.pct}% do orçamento de ${o.categoria}.` });
     }
   }
@@ -401,12 +266,12 @@ function gerarAlertas(mesAno = mesAnoAtual()) {
 /* ---------- Exportar / importar / limpar ---------- */
 
 function exportarDadosJSON() {
-  return JSON.stringify(estado, null, 2);
+  return storage.export(estado);
 }
 
 function importarDadosJSON(texto) {
-  const dados = JSON.parse(texto);
-  const base = estadoPadrao();
+  const dados = storage.import(texto);
+  const base = migration.estadoPadrao();
   estado = {
     ...base,
     ...dados,
@@ -416,6 +281,6 @@ function importarDadosJSON(texto) {
 }
 
 function limparTodosOsDados() {
-  estado = estadoPadrao();
+  estado = migration.estadoPadrao();
   salvarEstado();
 }

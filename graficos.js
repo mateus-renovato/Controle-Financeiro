@@ -1,3 +1,7 @@
+/* ===================================================================
+   graficos.js — pequenos gráficos em HTML/SVG, sem bibliotecas pesadas
+   =================================================================== */
+
 function barraCategoriasHTML(categorias) {
   if (!categorias.length) {
     return `<p class="vazio">Nenhum gasto lançado este mês ainda.</p>`;
@@ -16,6 +20,7 @@ function barraCategoriasHTML(categorias) {
     .join("");
 }
 
+/* Gráfico de evolução mensal (gastos, saldo ou investido) em SVG simples */
 function evolucaoSVG(historicoOrdenado, campo, cor) {
   if (!historicoOrdenado.length) {
     return `<p class="vazio">Feche pelo menos um mês para ver a evolução.</p>`;

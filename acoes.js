@@ -1,3 +1,7 @@
+/* ===================================================================
+   acoes.js — eventos da interface: navegação, formulários, cliques (V2)
+   =================================================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
   lancarFixosPendentes();
 
